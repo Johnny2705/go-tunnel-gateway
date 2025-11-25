@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/Johnny2705/go-tunnel-gateway/internal/config"
-	"github.com/Johnny2705/go-tunnel-gateway/internal/httpapi"
 )
 
 type Server struct {
@@ -15,13 +14,11 @@ type Server struct {
 	httpServer *http.Server
 }
 
-func NewServer(cfg *config.Config, healthHandler *httpapi.HealthHandler) *Server {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/health/live", healthHandler.Liveness)
-	mux.HandleFunc("/health/ready", healthHandler.Readiness)
+func NewServer(cfg *config.Config, handler http.Handler) *Server {
+
 	server := http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.Port),
-		Handler:      mux,
+		Handler:      handler,
 		ReadTimeout:  cfg.ReadTimeout,
 		WriteTimeout: cfg.WriteTimeout,
 		IdleTimeout:  cfg.IdleTimeout,

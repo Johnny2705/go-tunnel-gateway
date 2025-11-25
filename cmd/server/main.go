@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/Johnny2705/go-tunnel-gateway/internal/config"
 	"github.com/Johnny2705/go-tunnel-gateway/internal/health"
@@ -44,7 +43,10 @@ func main() {
 
 	healthChecker := health.NewChecker(cfg)
 	healthHandler := httpapi.NewHealthHandler(healthChecker)
-	srv := server.NewServer(cfg, healthHandler)
+	router := httpapi.NewRouter(httpapi.RouterDependencies{
+		HealthHandler: healthHandler,
+	})
+	srv := server.NewServer(cfg, router)
 
 	go func() {
 		err := srv.Start()
@@ -59,7 +61,7 @@ func main() {
 	sig := <-stop
 	slog.Info("shutdown signal received", slog.String("signal", sig.String()))
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
