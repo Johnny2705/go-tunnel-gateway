@@ -11,6 +11,6 @@ type Client struct {
 
 type Tunnel struct {
 	ID        TunnelID
-	ClientId  ClientID
+	ClientID  ClientID
 	CreatedAt time.Time
 }
