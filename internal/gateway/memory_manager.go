@@ -52,19 +52,17 @@ func (m *MemoryManager) ListTunnels() []Tunnel {
 	return tunnels
 }
 
-func (m *MemoryManager) RegisterClient(id ClientID) error {
+func (m *MemoryManager) RegisterClient() ClientID {
 	m.mux.Lock()
 	defer m.mux.Unlock()
-	if _, ok := m.clients[id]; ok {
-		return fmt.Errorf("%w: %s", ErrClientAlreadyExists, id)
-	}
 
+	clientID := ClientID(uuid.NewString())
 	c := &Client{
-		ID: id,
+		ID: clientID,
 	}
-	m.clients[id] = c
+	m.clients[clientID] = c
 
-	return nil
+	return clientID
 }
 
 func (m *MemoryManager) UnregisterClient(id ClientID) error {

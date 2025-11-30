@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/Johnny2705/go-tunnel-gateway/internal/config"
+	"github.com/Johnny2705/go-tunnel-gateway/internal/gateway"
 	"github.com/Johnny2705/go-tunnel-gateway/internal/health"
 	"github.com/Johnny2705/go-tunnel-gateway/internal/httpapi"
 	"github.com/Johnny2705/go-tunnel-gateway/internal/server"
@@ -43,8 +44,11 @@ func main() {
 
 	healthChecker := health.NewChecker(cfg)
 	healthHandler := httpapi.NewHealthHandler(healthChecker)
+	memoryManager := gateway.NewMemoryManager()
+	gatewayHandler := httpapi.NewGatewayHandler(memoryManager)
 	router := httpapi.NewRouter(httpapi.RouterDependencies{
-		HealthHandler: healthHandler,
+		HealthHandler:  healthHandler,
+		GatewayHandler: gatewayHandler,
 	})
 	srv := server.NewServer(cfg, router)
 
